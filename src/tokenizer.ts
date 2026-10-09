@@ -63,13 +63,42 @@ function tokenize(input: string): Token[] { {
             continue;
         }
 
-           throw new Error(`Unexpected character "${char}" at position ${i}`);
-    }
+                if (char >= 'A' && char <= 'Z') {
+            let letters = '';
+            let digits = '';
 
+            while (i < input.length && input[i] >= 'A' && input[i] <= 'Z') {
+                letters += input[i];
+                i++;
+            }
+
+            while (i < input.length && input[i] >= '0' && input[i] <= '9') {
+                digits += input[i];
+                i++;
+            }
+
+            const word = letters + digits;
+
+            if (input[i] === '(') {
+                tokens.push({ type: 'FUNC_NAME', value: word });
+            } else if (word === 'TRUE' || word === 'FALSE') {
+                tokens.push({ type: 'BOOLEAN', value: word });
+            } else if (digits !== '') {
+                tokens.push({ type: 'CELL_REF', value: word });
+            } else {
+                throw new Error(`Unknown name "${word}" at position ${i - word.length}`);
+            }
+            continue;
+        }
+
+
+
+           throw new Error(`Unexpected character "${char}" at position ${i}`);
+        }
     return tokens;
-}   
+    }   
 }
 
-
-console.log(tokenize("3.5 + 2.5"));
-console.log(tokenize("3.1.4"));
+console.log(tokenize("SUM(A1) + 2"));
+console.log(tokenize("TRUE"));
+console.log(tokenize("ABC"));
