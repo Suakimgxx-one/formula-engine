@@ -91,6 +91,38 @@ function tokenize(input: string): Token[] {
         continue;
       }
 
+      if (char === "^") {
+        tokens.push({ type: "CARET", value: char });
+        i++;
+        continue;
+      }
+
+      if (char === "&") {
+        tokens.push({ type: "AMPERSAND", value: char });
+        i++;
+        continue;
+      }
+
+      if (char === '"') {
+        const start = i;   // remember where the string began, for the error
+        i++;               // skip the opening quote
+        let text = '';
+
+        while (i < input.length && input[i] !== '"') {
+          // add the character and move forward
+          text += input[i];
+          i++;
+        }
+
+        if (i >= input.length) {
+          throw new Error(`Unterminated string starting at position ${start}`);
+        }
+
+        i++;               // skip the closing quote
+        tokens.push({ type: 'STRING', value: text });
+        continue;
+      }
+
       if (isLetter(char)) {
         let letters = "";
         let digits = "";
@@ -127,4 +159,5 @@ function tokenize(input: string): Token[] {
   }
 }
 
-   console.log(tokenize("sum(a1:b2) + true"));
+console.log(tokenize('"Hello" & " world" ^ 2'));
+console.log(tokenize('"oops'));
